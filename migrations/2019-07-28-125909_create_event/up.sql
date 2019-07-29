@@ -1,0 +1,7 @@
+CREATE TABLE events (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    finished BOOLEAN NOT NULL DEFAULT 'f',
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT 'now',
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT 'now'
+)
