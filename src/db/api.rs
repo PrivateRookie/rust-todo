@@ -82,7 +82,10 @@ pub fn update_status(mut state: State) -> Box<HandlerFuture> {
         .and_then(move |event| {
             repo.run(move |conn| {
                 diesel::update(&event)
-                    .set(finished.eq(event.finished))
+                    .set((
+                        finished.eq(event.finished),
+                        updated_at.eq(super::naivedate_now()),
+                    ))
                     .get_result(&conn)
                     .map_err(|e| not_found(e))
             })
