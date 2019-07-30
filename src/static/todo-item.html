@@ -1,0 +1,38 @@
+<div class="row todo-item">
+  <div class="col-md-6">{{ item.content | limitTo: 30 }}</div>
+  <div class="col-md-2">{{ item.created_at | date: "yyyy-MM-dd HH:mm:ss"}}</div>
+  <div class="col-md-1">
+    <span class="fa fa-check" ng-if="item.finished"></span>
+    <span class="fa fa-close" ng-if="!item.finished"></span>
+  </div>
+  <div class="col-md-3">
+    <div class="btn-group">
+      <button class="btn btn-info btn-sm" ng-click="toggleEvent(item.id)">详情</button>
+      <button class="btn btn-primary btn-sm" ng-click="updateStatus(item)">
+        <span ng-if="!item.finished">完成</span>
+        <span ng-if="item.finished">撤销</span>
+      </button>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-danger btn-sm" ng-click="deleteEvent(item.id)">删除</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12 panel panel-info" ng-show="showDetail(item.id)">
+      <div class="panel-body">
+        <ul class="list-group">
+          <li class="list-group-item"><span class="text-info">创建时间:
+              {{ item.created_at | date: "yyyy-MM-dd HH:mm:ss" }}</span>
+          </li>
+          <li class="list-group-item"><span class="text-info">更新时间:
+              {{ item.updated_at | date: "yyyy-MM-dd HH:mm:ss" }}</span>
+          </li>
+          <li class="list-group-item"><span class="text-info">状态: {{ item.finished }}</span></li>
+        </ul>
+        <div class="well">
+          <p>{{ item.content }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
