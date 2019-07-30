@@ -115,3 +115,25 @@ pub fn event_get(mut state: State) -> Box<HandlerFuture> {
         });
     Box::new(f)
 }
+
+pub fn event_delete(mut state: State) -> Box<HandlerFuture> {
+    use schema::events::dsl::*;
+
+    let extrator = PathExtractor::take_from(&mut state);
+    let repo = Repo::borrow_from(&state).clone();
+    let f = repo
+        .run(move |conn| diesel::delete(events.find(extrator.id)).execute(&conn))
+        .then(|result| match result {
+            Ok(_) => {
+                let res = create_response(
+                    &state,
+                    StatusCode::OK,
+                    mime::APPLICATION_JSON,
+                    "".to_string(),
+                );
+                future::ok((state, res))
+            }
+            Err(e) => future::err((state, e.into_handler_error())),
+        });
+    Box::new(f)
+}
