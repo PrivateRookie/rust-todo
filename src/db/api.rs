@@ -1,39 +1,14 @@
-use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use futures::{future, Future, Stream};
 use gotham::handler::{HandlerError, HandlerFuture, IntoHandlerError};
 use gotham::helpers::http::response::create_response;
 use gotham::state::{FromState, State};
 use hyper::{Body, StatusCode};
-use log::warn;
-use serde_derive::Serialize;
 use std::str::from_utf8;
 
 use crate::db::modles::{Event, NewEvent, PathExtractor, UpdateEventStatus};
 use crate::db::schema;
-
-#[derive(Serialize)]
-struct RowsUpdated {
-    rows: usize,
-}
-
-pub type Repo = gotham_middleware_diesel::Repo<PgConnection>;
-
-fn bad_request<E>(e: E) -> HandlerError
-where
-    E: std::error::Error + Send + 'static,
-{
-    warn!("error occur: {}", e);
-    e.into_handler_error().with_status(StatusCode::BAD_REQUEST)
-}
-
-fn not_found<E>(e: E) -> HandlerError
-where
-    E: std::error::Error + Send + 'static,
-{
-    warn!("error occur: {}", e);
-    e.into_handler_error().with_status(StatusCode::NOT_FOUND)
-}
+use crate::db::{bad_request, not_found, Repo};
 
 fn extract_json<T>(state: &mut State) -> impl Future<Item = T, Error = HandlerError>
 where
@@ -57,14 +32,13 @@ pub fn event_post(mut state: State) -> Box<HandlerFuture> {
             repo.run(move |conn| {
                 diesel::insert_into(schema::events::table)
                     .values(&event)
-                    .execute(&conn)
+                    .get_result::<Event>(&conn)
             })
             .map_err(|e| e.into_handler_error())
         })
         .then(|result| match result {
-            Ok(rows) => {
-                let body = serde_json::to_string(&RowsUpdated { rows })
-                    .expect("Failed to serialise to json");
+            Ok(event) => {
+                let body = serde_json::to_string(&event).expect("Failed to serialise to json");
                 let res =
                     create_response(&state, StatusCode::CREATED, mime::APPLICATION_JSON, body);
                 future::ok((state, res))
@@ -75,7 +49,7 @@ pub fn event_post(mut state: State) -> Box<HandlerFuture> {
 }
 
 pub fn update_status(mut state: State) -> Box<HandlerFuture> {
-    use crate::db::schema::events::dsl::*;
+    use schema::events::dsl::*;
 
     let repo = Repo::borrow_from(&state).clone();
     let f = extract_json::<UpdateEventStatus>(&mut state)
@@ -103,7 +77,7 @@ pub fn update_status(mut state: State) -> Box<HandlerFuture> {
 }
 
 pub fn event_list(state: State) -> Box<HandlerFuture> {
-    use crate::db::schema::events::dsl::*;
+    use schema::events::dsl::*;
 
     let repo = Repo::borrow_from(&state).clone();
     let f = repo
@@ -120,7 +94,7 @@ pub fn event_list(state: State) -> Box<HandlerFuture> {
 }
 
 pub fn event_get(mut state: State) -> Box<HandlerFuture> {
-    use crate::db::api::schema::events::dsl::*;
+    use schema::events::dsl::*;
 
     let extrator = PathExtractor::take_from(&mut state);
     let repo = Repo::borrow_from(&state).clone();

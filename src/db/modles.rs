@@ -1,7 +1,7 @@
 use chrono::NaiveDateTime;
-use diesel::{Insertable, Queryable, Identifiable};
-use serde_derive::{Deserialize, Serialize};
+use diesel::{Identifiable, Insertable, Queryable};
 use gotham_derive::{StateData, StaticResponseExtender};
+use serde_derive::{Deserialize, Serialize};
 
 use crate::db::schema::events;
 
@@ -14,7 +14,6 @@ pub struct Event {
     pub updated_at: NaiveDateTime,
 }
 
-
 #[derive(Insertable, Deserialize)]
 #[table_name = "events"]
 pub struct NewEvent {
@@ -26,11 +25,10 @@ pub struct NewEvent {
     pub updated_at: NaiveDateTime,
 }
 
-
 #[derive(Identifiable, Deserialize)]
 #[table_name = "events"]
 pub struct UpdateEventStatus {
-    pub id : i32,
+    pub id: i32,
     pub finished: bool,
     #[serde(default = "super::naivedate_now")]
     pub updated_at: NaiveDateTime,
