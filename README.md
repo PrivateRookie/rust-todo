@@ -1,6 +1,8 @@
 # rust-todo
 todo demo app by gotham
 
+![rust-todo](/img/todo.png)
+
 ## 安装
 
 默认你已经安装了 Rust，如果没有，请参考 [Install Rust](https://www.rust-lang.org/learn/get-started)
@@ -8,7 +10,13 @@ todo demo app by gotham
 首先需要有一个 Postgres 数据库，如果没有可以用 Docker 快速安装
 
 ```bash
-docker run -d --name pg-db -p 5432:5432 -E POSTGRES_ROOT_PASSWD=1234TttT postgres
+docker run -d\
+    --name pg-db \
+    -e POSTGRES_ROOT_PASSWORD=1234TttT \
+    -e POSTGRES_USER=root \
+    -p 5433:5433 \
+    -p 5432:5432 \
+    postgres
 ```
 
 接着安装 `diesel_cli`，完整文档参考官网 [Diesel - Getting Start](http://diesel.rs/guides/getting-started/)
