@@ -1,3 +1,4 @@
+mod auth;
 mod events;
 pub mod utils;
 
@@ -9,8 +10,12 @@ use gotham_middleware_diesel::DieselMiddleware;
 use crate::db;
 
 pub fn router(repo: db::Repo) -> Router {
-    let (chain, pipeline) =
-        single_pipeline(new_pipeline().add(DieselMiddleware::new(repo)).build());
+    let (chain, pipeline) = single_pipeline(
+        new_pipeline()
+            .add(DieselMiddleware::new(repo))
+            .add(auth::AuthMiddleWare::new())
+            .build(),
+    );
 
     build_router(chain, pipeline, |route| {
         // routing index page and static files
