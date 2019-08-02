@@ -3,6 +3,8 @@ name = "rust-todo"
 version = "0.1.0"
 authors = ["huang.xiangdong <huang.xiangdong@99cloud.net>"]
 edition = "2018"
+description = "gotham paratics app"
+license = "Apache"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -22,3 +24,10 @@ mime = "0.3.13"
 uuid = { version = "0.7", features = ["serde", "v4"] }
 log = "0.4.8"
 env_logger = "0.6.2"
+clap = "2.33.0"
+
+[package.metadata.rpm.cargo]
+buildflags = ["--release"]
+
+[package.metadata.rpm.targets]
+rust-todo = { path = "/usr/bin/rust-todo" }
