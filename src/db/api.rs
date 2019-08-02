@@ -3,7 +3,7 @@ use futures::Future;
 use gotham::handler::{HandlerError, IntoHandlerError};
 
 use crate::api::utils::not_found;
-use crate::db::modles::{Event, NewEvent, PathExtractor, UpdateEventStatus};
+use crate::db::modles::*;
 use crate::db::{schema, Repo};
 
 pub fn create_event(
@@ -31,6 +31,27 @@ pub fn update_event(
             ))
             .get_result(&conn)
             .map_err(|e| not_found(e))
+    })
+    .map_err(|e| e.into_handler_error())
+}
+
+pub fn update_content(
+    repo: Repo,
+    event: UpdateEventContent,
+) -> impl Future<Item = Event, Error = HandlerError> {
+    use schema::events::dsl::*;
+    repo.run(move |conn| match &event.content {
+        Some(new_content) => diesel::update(&event)
+            .set((
+                updated_at.eq(super::naivedate_now()),
+                content.eq(new_content),
+            ))
+            .get_result(&conn)
+            .map_err(|e| e.into_handler_error()),
+        None => diesel::update(&event)
+            .set(updated_at.eq(super::naivedate_now()))
+            .get_result(&conn)
+            .map_err(|e| e.into_handler_error()),
     })
     .map_err(|e| e.into_handler_error())
 }

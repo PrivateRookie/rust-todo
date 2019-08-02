@@ -1,5 +1,5 @@
-mod events;
 pub mod auth;
+mod events;
 pub mod utils;
 
 use gotham::handler::assets::FileOptions;
@@ -32,6 +32,7 @@ pub fn router(repo: db::Repo, auth: Option<&str>) -> Router {
                 route.get("/").to(self::events::get);
                 route.post("/").to(self::events::post);
                 route.put("/").to(self::events::put);
+                route.patch("/").to(self::events::update_con);
                 route
                     .get("/:id")
                     .with_path_extractor::<db::PathExtractor>()

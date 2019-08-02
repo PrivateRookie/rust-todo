@@ -34,6 +34,16 @@ pub struct UpdateEventStatus {
     pub updated_at: NaiveDateTime,
 }
 
+#[derive(Identifiable, Deserialize)]
+#[table_name = "events"]
+pub struct UpdateEventContent {
+    pub id: i32,
+    pub finished: bool,
+    #[serde(default = "super::naivedate_now")]
+    pub updated_at: NaiveDateTime,
+    pub content: Option<String>
+}
+
 #[derive(Deserialize, StateData, StaticResponseExtender)]
 pub struct PathExtractor {
     pub id: i32,
