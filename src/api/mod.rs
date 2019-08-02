@@ -1,5 +1,6 @@
 pub mod auth;
 mod events;
+mod basic_auth;
 pub mod utils;
 
 use gotham::handler::assets::FileOptions;
@@ -9,11 +10,12 @@ use gotham_middleware_diesel::DieselMiddleware;
 
 use crate::db;
 
-pub fn router(repo: db::Repo, auth: Option<&str>) -> Router {
+pub fn router(repo: db::Repo, auth: Option<&str>, userlist: Vec<String>) -> Router {
     let (chain, pipeline) = single_pipeline(
         new_pipeline()
             .add(DieselMiddleware::new(repo))
             .add(auth::AuthMiddleWare::new(auth))
+            .add(basic_auth::AuthMiddleWare::new(userlist))
             .build(),
     );
 

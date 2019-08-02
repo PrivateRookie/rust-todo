@@ -56,5 +56,6 @@ fn main() {
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be specify");
     let repo = db::Repo::new(&db_url);
     let auth = matches.value_of("auth");
-    gotham::start(addr, router(repo, auth));
+    let userlist = vec!["admin:admin".to_owned(), "xd:super".to_owned()];
+    gotham::start(addr, router(repo, auth, userlist));
 }
